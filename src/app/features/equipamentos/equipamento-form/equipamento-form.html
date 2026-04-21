@@ -1,0 +1,46 @@
+<div class="min-h-screen bg-[#0f172a] text-slate-200 p-8 flex items-center justify-center">
+  <div class="max-w-xl w-full bg-[#1e293b] rounded-xl shadow-2xl border border-slate-700 p-8">
+    <h2 class="text-2xl font-light mb-6 text-white tracking-tight">Cadastro de Equipamento</h2>
+    
+    <form [formGroup]="equipamentoForm" (ngSubmit)="onSubmit()" class="space-y-5">
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Código</label>
+          <input formControlName="codigo" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Nome</label>
+          <input formControlName="nome" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Tipo</label>
+          <input formControlName="tipo" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Localização</label>
+          <input formControlName="localizacao" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Fabricante</label>
+          <input formControlName="fabricante" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+        <div class="flex flex-col space-y-1">
+          <label class="text-xs font-medium text-slate-400 uppercase tracking-wider">Modelo</label>
+          <input formControlName="modelo" class="bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2 focus:outline-none focus:border-blue-500 transition-colors">
+        </div>
+      </div>
+
+      <button type="submit" 
+              [disabled]="equipamentoForm.invalid"
+              class="w-full mt-6 bg-blue-600 hover:bg-blue-500 cursor-pointer disabled:bg-slate-700 disabled:cursor-not-allowed text-white font-medium py-2.5 rounded-lg transition-all duration-200">
+        Salvar Equipamento
+      </button>
+    </form>
+  </div>
+</div>
