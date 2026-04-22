@@ -1,0 +1,31 @@
+<button (click)="toggleMenu()" class="lg:hidden p-4 text-white">
+  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="4 6h16M4 12h16m-7 6h7"></path>
+  </svg>
+</button>
+
+<div class="flex">
+  <aside [class.hidden]="!isMenuOpen" class="w-64 min-h-screen bg-[#1e293b] border-r border-slate-700 p-6 flex flex-col space-y-4 lg:block">
+<div class="flex items-center space-x-2 mb-10">
+  <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
+    <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+    </svg>
+  </div>
+  <h1 class="text-white font-bold text-xl tracking-tight">AssetFlow</h1>
+</div>
+    
+    <nav class="flex flex-col space-y-2">
+      <a routerLink="/cadastro" class="text-slate-300 hover:bg-[#0f172a] hover:text-white px-4 py-2 rounded-lg transition-all cursor-pointer">
+          ➕ Cadastrar
+      </a>
+      <a routerLink="/lista" class="text-slate-300 hover:bg-[#0f172a] hover:text-white px-4 py-2 rounded-lg transition-all cursor-pointer">
+        📋 Equipamentos
+      </a>
+    </nav>
+  </aside>
+
+  <main class="flex-1">
+    <router-outlet></router-outlet>
+  </main>
+</div>

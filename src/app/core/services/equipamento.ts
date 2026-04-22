@@ -1,25 +1,29 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Equipamento } from '../models/equipamento.model';
-import { HttpHeaders} from '@angular/common/http';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EquipamentoService {
   private readonly API = 'http://localhost:3000/api/equipamentos';
+  
+  private readonly token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsInBlcmZpbCI6MiwiaWF0IjoxNzc2ODIwMzcyLCJleHAiOjE3NzY4MjEyNzJ9.p9HMVtBm-8ygi8_vpzumqo5qFZ1qfgHdbaGMYtMnGcM'; 
 
   constructor(private http: HttpClient) { }
 
-cadastrar(equipamento: Equipamento): Observable<Equipamento> {
+  private getHeaders(): HttpHeaders {
+    return new HttpHeaders({
+      'Authorization': `Bearer ${this.token}`
+    });
+  }
 
-  const token = 'substituir_pelo_token'; // Apos a implementacao do Login, nao ira precisar ter um token provisório.
-  
-  const headers = new HttpHeaders({
-    'Authorization': `Bearer ${token}`
-  });
+  cadastrar(equipamento: Equipamento): Observable<Equipamento> {
+    return this.http.post<Equipamento>(this.API, equipamento, { headers: this.getHeaders() });
+  }
 
-  return this.http.post<Equipamento>(this.API, equipamento, { headers });
-}
+  listar(): Observable<Equipamento[]> {
+    return this.http.get<Equipamento[]>(this.API, { headers: this.getHeaders() });
+  }
 }
