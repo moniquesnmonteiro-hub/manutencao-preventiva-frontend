@@ -9,7 +9,7 @@ import { Equipamento } from '../models/equipamento.model';
 export class EquipamentoService {
   private readonly API = 'http://localhost:3000/api/equipamentos';
   
-  private readonly token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsInBlcmZpbCI6MiwiaWF0IjoxNzc2ODIwMzcyLCJleHAiOjE3NzY4MjEyNzJ9.p9HMVtBm-8ygi8_vpzumqo5qFZ1qfgHdbaGMYtMnGcM'; 
+  private readonly token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOjcsInBlcmZpbCI6MiwiaWF0IjoxNzc3MzQyNDE3LCJleHAiOjE3NzczNDMzMTd9.iPvFQwFzzAoC3dEwK0Ruw-Wc-ai2OfNdryAXQfzscxg'; 
 
   constructor(private http: HttpClient) { }
 
@@ -25,5 +25,9 @@ export class EquipamentoService {
 
   listar(): Observable<Equipamento[]> {
     return this.http.get<Equipamento[]>(this.API, { headers: this.getHeaders() });
+  }
+
+  update(id: string, equipamento: Partial<Equipamento>): Observable<Equipamento> {
+    return this.http.put<Equipamento>(`${this.API}/${id}`, equipamento);
   }
 }

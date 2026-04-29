@@ -1,1 +1,23 @@
-<p>equipamento-list works!</p>
+@if (exibirModal) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm transition-opacity">
+    
+    <div class="bg-slate-800 w-full max-auto max-w-lg rounded-2xl border border-slate-700 shadow-2xl transform transition-all scale-100 p-6">
+      
+      <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-white">
+          {{ isEditMode ? 'Editar Equipamento' : 'Novo Equipamento' }}
+        </h2>
+        <button (click)="fecharModal()" class="text-slate-400 hover:text-white">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+
+      <app-equipamento-form 
+        [equipamentoInicial]="equipamentoSelecionado" 
+        (salvo)="onSalvo()" 
+        (cancelado)="fecharModal()">
+      </app-equipamento-form>
+
+    </div>
+  </div>
+}

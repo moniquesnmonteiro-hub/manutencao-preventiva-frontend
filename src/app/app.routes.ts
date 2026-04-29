@@ -3,9 +3,7 @@ import { EquipamentoFormComponent } from './features/equipamentos/equipamento-fo
 import { EquipamentoListComponent } from './features/equipamentos/equipamento-list/equipamento-list';
 
 export const routes: Routes = [
-  // Rota para o Formulário de Cadastro
-  { path: 'cadastro', component: EquipamentoFormComponent },
-  
+
   // Rota para a Listagem
   { path: 'lista', component: EquipamentoListComponent },
 
