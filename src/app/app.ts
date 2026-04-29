@@ -1,12 +1,24 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterOutlet, Router, NavigationEnd } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map, startWith } from 'rxjs';
 import { Sidenav } from './core/components/sidenav/sidenav';
 
 @Component({
   selector: 'app-root',
-  imports: [Sidenav],
+  imports: [CommonModule, RouterOutlet, Sidenav],
   templateUrl: './app.html',
-  styleUrl: './app.css'
+  styleUrl: './app.css',
 })
 export class App {
-  protected readonly title = signal('frontend');
+  private router = inject(Router);
+
+  showSidenav = toSignal(
+    this.router.events.pipe(
+      filter(e => e instanceof NavigationEnd),
+      map(e => !e.urlAfterRedirects.startsWith('/login')),
+      startWith(!this.router.url.startsWith('/login'))
+    )
+  );
 }

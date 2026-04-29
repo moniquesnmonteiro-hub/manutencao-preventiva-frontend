@@ -1,15 +1,19 @@
 import { Routes } from '@angular/router';
-import { EquipamentoFormComponent } from './features/equipamentos/equipamento-form/equipamento-form';
-import { EquipamentoListComponent } from './features/equipamentos/equipamento-list/equipamento-list';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-
-  // Rota para a Listagem
-  { path: 'lista', component: EquipamentoListComponent },
-
-  // Rota padrão (redireciona para a lista ou cadastro)
+  {
+    path: 'login',
+    loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent),
+  },
+  {
+    path: 'lista',
+    loadComponent: () =>
+      import('./features/equipamentos/equipamento-list/equipamento-list').then(
+        m => m.EquipamentoListComponent
+      ),
+    canActivate: [authGuard],
+  },
   { path: '', redirectTo: 'lista', pathMatch: 'full' },
-
-  // Fallback para rotas não encontradas
-  { path: '**', redirectTo: 'lista' }
+  { path: '**', redirectTo: 'lista' },
 ];
