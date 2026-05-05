@@ -27,7 +27,7 @@ export class LoginComponent {
     this.errorMsg = '';
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: () => this.router.navigate(['/lista']),
+      next: () => this.router.navigate(['/app/equipamentos']),
       error: (err) => {
         this.errorMsg = err.error?.message ?? 'Erro ao conectar com o servidor';
         this.isLoading = false;

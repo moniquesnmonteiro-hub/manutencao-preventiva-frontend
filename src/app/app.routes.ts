@@ -7,13 +7,13 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/login/login').then(m => m.LoginComponent),
   },
   {
-    path: 'lista',
+    path: 'app/equipamentos',
     loadComponent: () =>
       import('./features/equipamentos/equipamento-list/equipamento-list').then(
         m => m.EquipamentoListComponent
       ),
     canActivate: [authGuard],
   },
-  { path: '', redirectTo: 'lista', pathMatch: 'full' },
-  { path: '**', redirectTo: 'lista' },
+  { path: '', redirectTo: 'app/equipamentos', pathMatch: 'full' },
+  { path: '**', redirectTo: 'app/equipamentos' },
 ];
