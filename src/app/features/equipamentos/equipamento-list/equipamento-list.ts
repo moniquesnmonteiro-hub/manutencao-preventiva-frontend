@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { EquipamentoService } from '../../../core/services/equipamento';
 import { PlanoService } from '../../../core/services/plano.service';
@@ -144,7 +144,7 @@ import { EquipamentoFormComponent } from '../equipamento-form/equipamento-form';
                     <div class="min-w-0">
                       <p class="text-white font-medium truncate">{{ plano.titulo }}</p>
                       <p class="text-slate-400 text-sm mt-0.5">
-                        A cada {{ plano.periodicidade_dias }} dias &middot;
+                        A cada {{ plano.periodicidade_days }} dias &middot;
                         Próxima: {{ formatarData(plano.proxima_em) }}
                       </p>
                     </div>
@@ -173,6 +173,8 @@ export class EquipamentoListComponent implements OnInit {
   planosDoEquipamento: PlanoResumo[] = [];
   carregandoPlanos = false;
 
+  private cdr = inject(ChangeDetectorRef);
+
   constructor(
     private service: EquipamentoService,
     private planoService: PlanoService
@@ -184,7 +186,7 @@ export class EquipamentoListComponent implements OnInit {
 
   carregarDados(): void {
     this.service.listar().subscribe({
-      next: (dados) => this.equipamentos = dados,
+      next: (dados) => { this.equipamentos = dados; this.cdr.detectChanges(); },
       error: (err) => console.error('Erro ao buscar equipamentos:', err)
     });
   }
@@ -215,8 +217,9 @@ export class EquipamentoListComponent implements OnInit {
       next: (planos) => {
         this.planosDoEquipamento = planos;
         this.carregandoPlanos = false;
+        this.cdr.detectChanges();
       },
-      error: () => { this.carregandoPlanos = false; }
+      error: () => { this.carregandoPlanos = false; this.cdr.detectChanges(); }
     });
   }
 

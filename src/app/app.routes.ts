@@ -14,6 +14,18 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
+  {
+    path: 'app/planos',
+    loadComponent: () =>
+      import('./features/planos/plano-list/plano-list').then(m => m.PlanoListComponent),
+    canActivate: [authGuard],
+  },
+  {
+    path: 'app/planos/:id',
+    loadComponent: () =>
+      import('./features/planos/plano-detalhe/plano-detalhe').then(m => m.PlanoDetalheComponent),
+    canActivate: [authGuard],
+  },
   { path: '', redirectTo: 'app/equipamentos', pathMatch: 'full' },
   { path: '**', redirectTo: 'app/equipamentos' },
 ];
