@@ -1,6 +1,6 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { forkJoin } from 'rxjs';
 import { PlanoService } from '../../../core/services/plano.service';
 import { ExecucaoService } from '../../../core/services/execucao.service';
@@ -10,7 +10,7 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
 @Component({
   selector: 'app-plano-detalhe',
   standalone: true,
-  imports: [CommonModule],
+  imports: [CommonModule, RouterLink],
   template: `
     <div class="min-h-screen bg-[#0f172a] p-8">
       <div class="max-w-4xl mx-auto">
@@ -73,7 +73,15 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
 
           <!-- Histórico de execuções -->
           <div>
-            <h3 class="text-lg font-medium text-white mb-4">Histórico de Execuções</h3>
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-lg font-medium text-white">Histórico de Execuções</h3>
+              <a
+                [routerLink]="['/app/execucoes/nova']"
+                [queryParams]="{ plano_id: plano.id }"
+                class="bg-blue-600 hover:bg-blue-500 text-white px-4 py-2 rounded-lg text-sm font-medium transition-all flex items-center gap-2">
+                <span>+</span> Registrar Execução
+              </a>
+            </div>
 
             <div class="bg-[#1e293b] rounded-xl border border-slate-700 overflow-hidden">
               @if (execucoes.length === 0) {

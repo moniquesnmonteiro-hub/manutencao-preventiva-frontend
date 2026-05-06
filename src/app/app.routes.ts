@@ -26,6 +26,14 @@ export const routes: Routes = [
       import('./features/planos/plano-detalhe/plano-detalhe').then(m => m.PlanoDetalheComponent),
     canActivate: [authGuard],
   },
+  {
+    path: 'app/execucoes/nova',
+    loadComponent: () =>
+      import('./features/execucoes/execucao-form/execucao-form.component').then(
+        m => m.ExecucaoFormComponent
+      ),
+    canActivate: [authGuard],
+  },
   { path: '', redirectTo: 'app/equipamentos', pathMatch: 'full' },
   { path: '**', redirectTo: 'app/equipamentos' },
 ];

@@ -1,0 +1,227 @@
+<!-- Container principal com fundo escuro. -->
+<div class="min-h-screen bg-[#0f172a] p-8">
+  <!-- Área centralizada com largura máxima. -->
+  <div class="max-w-2xl mx-auto">
+
+    <!-- Botão de voltar para a lista de planos. -->
+    <a routerLink="/app/planos"
+       class="flex items-center gap-2 text-slate-400 hover:text-white transition-colors mb-6 text-sm w-fit">
+      <!-- Ícone de seta. -->
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"/>
+      </svg>
+      Voltar para Planos
+    </a>
+
+    <!-- Cabeçalho da página. -->
+    <div class="mb-8">
+      <!-- Título principal. -->
+      <h2 class="text-2xl font-light text-white tracking-tight">Registrar Execução</h2>
+      <!-- Subtítulo explicativo. -->
+      <p class="text-slate-400 text-sm mt-1">Registre a execução de um plano de manutenção</p>
+    </div>
+
+    <!-- Exibe mensagem de erro se existir. -->
+    @if (erro()) {
+      <!-- Caixa de alerta de erro. -->
+      <div class="flex items-center gap-2 bg-red-500/10 border border-red-500/30 text-red-400 text-sm rounded-lg px-4 py-3 mb-6">
+        <!-- Ícone de alerta. -->
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        {{ erro() }}
+      </div>
+    }
+
+    <!-- Card do formulário. -->
+    <div class="bg-[#1e293b] rounded-xl border border-slate-700 shadow-2xl p-8">
+
+      <!-- Formulário com ngSubmit. -->
+      <form (ngSubmit)="onSubmit()" #form="ngForm" class="space-y-6">
+
+        <!-- Campo: Plano de Manutenção. -->
+        <div>
+          <!-- Label do campo. -->
+          <label class="block text-sm font-medium text-slate-400 mb-1.5">
+            Plano de Manutenção *
+          </label>
+          <!-- Select com lista de planos. -->
+          <select
+            name="plano_id"
+            [(ngModel)]="plano_id"
+            required
+            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2.5 text-white
+                   focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+            <!-- Opção padrão vazia. -->
+            <option value="">Selecione um plano...</option>
+            <!-- Loop pelos planos disponíveis. -->
+            @for (plano of planos(); track plano.id) {
+              <!-- Opção de cada plano com status de prazo. -->
+              <option [value]="plano.id">
+                {{ plano.equipamento?.nome ?? '—' }} · {{ plano.titulo }} · {{ getStatusLabel(plano.proxima_em) }}
+              </option>
+            }
+          </select>
+
+          <!-- Exibe card de preview do plano selecionado. -->
+          @if (plano_id) {
+            @for (plano of planos(); track plano.id) {
+              @if (plano.id === plano_id) {
+                <!-- Preview com dados do plano selecionado. -->
+                <div class="mt-2 bg-[#0f172a] rounded-lg p-3 flex items-center justify-between gap-3">
+                  <!-- Informações do plano. -->
+                  <div>
+                    <p class="text-white text-sm font-medium">{{ plano.titulo }}</p>
+                    <p class="text-slate-400 text-xs">
+                      {{ plano.equipamento?.nome }} · A cada {{ plano.periodicidade_days }} dias
+                    </p>
+                  </div>
+                  <!-- Badge de status do prazo. -->
+                  <span class="shrink-0 text-xs font-semibold px-2.5 py-1 rounded-full"
+                    [class]="getStatusClass(plano.proxima_em)">
+                    {{ getStatusLabel(plano.proxima_em) }}
+                  </span>
+                </div>
+              }
+            }
+          }
+        </div>
+
+        <!-- Linha com data e status lado a lado. -->
+        <div class="grid grid-cols-2 gap-4">
+
+          <!-- Campo: Data de Execução. -->
+          <div>
+            <!-- Label do campo. -->
+            <label class="block text-sm font-medium text-slate-400 mb-1.5">
+              Data de Execução *
+            </label>
+            <!-- Input de data. -->
+            <input
+              type="date"
+              name="data_realizada"
+              [(ngModel)]="data_realizada"
+              required
+              class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2.5 text-white
+                     focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
+                     [color-scheme:dark]"/>
+          </div>
+
+          <!-- Campo: Status da Execução. -->
+          <div>
+            <!-- Label do campo. -->
+            <label class="block text-sm font-medium text-slate-400 mb-1.5">
+              Status *
+            </label>
+            <!-- Select de status. -->
+            <select
+              name="status"
+              [(ngModel)]="status"
+              required
+              class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2.5 text-white
+                     focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+              <!-- Loop pelas opções de status. -->
+              @for (opcao of statusOpcoes; track opcao.value) {
+                <!-- Opção de status. -->
+                <option [value]="opcao.value">{{ opcao.label }}</option>
+              }
+            </select>
+          </div>
+
+        </div>
+
+        <!-- Campo: Conformidade. -->
+        <div>
+          <!-- Label do campo. -->
+          <label class="block text-sm font-medium text-slate-400 mb-3">
+            Conformidade *
+          </label>
+          <!-- Opções de conformidade. -->
+          <div class="flex gap-4">
+
+            <!-- Opção: Conforme. -->
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <!-- Radio de conforme. -->
+              <input
+                type="radio"
+                name="conformidade"
+                [value]="true"
+                [(ngModel)]="conformidade"
+                class="w-4 h-4 text-green-500 bg-[#0f172a] border-slate-600 focus:ring-green-500"/>
+              <!-- Texto e ícone. -->
+              <span class="flex items-center gap-1.5 text-slate-300 text-sm group-hover:text-white transition-colors">
+                <span class="text-green-400">✓</span> Conforme ao plano
+              </span>
+            </label>
+
+            <!-- Opção: Não conforme. -->
+            <label class="flex items-center gap-2.5 cursor-pointer group">
+              <!-- Radio de não conforme. -->
+              <input
+                type="radio"
+                name="conformidade"
+                [value]="false"
+                [(ngModel)]="conformidade"
+                class="w-4 h-4 text-red-500 bg-[#0f172a] border-slate-600 focus:ring-red-500"/>
+              <!-- Texto e ícone. -->
+              <span class="flex items-center gap-1.5 text-slate-300 text-sm group-hover:text-white transition-colors">
+                <span class="text-red-400">✗</span> Não conforme
+              </span>
+            </label>
+
+          </div>
+        </div>
+
+        <!-- Campo: Observações. -->
+        <div>
+          <!-- Label do campo. -->
+          <label class="block text-sm font-medium text-slate-400 mb-1.5">
+            Observações
+          </label>
+          <!-- Textarea de observações. -->
+          <textarea
+            name="observacoes"
+            [(ngModel)]="observacoes"
+            rows="3"
+            placeholder="Descreva o estado do equipamento, o que foi feito, materiais usados..."
+            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2.5 text-white
+                   placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-blue-500/50
+                   transition-all resize-none">
+          </textarea>
+        </div>
+
+        <!-- Rodapé com botões. -->
+        <div class="flex justify-end gap-3 pt-2 border-t border-slate-700">
+
+          <!-- Botão cancelar. -->
+          <a routerLink="/app/planos"
+             class="px-4 py-2 text-slate-400 hover:text-white transition-colors text-sm">
+            Cancelar
+          </a>
+
+          <!-- Botão salvar. -->
+          <button
+            type="submit"
+            [disabled]="loading() || !plano_id || !data_realizada"
+            class="bg-blue-600 hover:bg-blue-500 disabled:bg-slate-700 disabled:text-slate-500
+                   text-white px-8 py-2 rounded-lg font-medium transition-all flex items-center gap-2">
+
+            <!-- Spinner enquanto salva. -->
+            @if (loading()) {
+              <svg class="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+              </svg>
+              Salvando...
+            } @else {
+              Registrar Execução
+            }
+
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>
