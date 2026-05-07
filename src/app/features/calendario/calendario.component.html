@@ -110,26 +110,26 @@
         <!-- Loop pelos itens do calendário. -->
         @for (item of itens(); track item.id) {
           <!-- Card de cada manutenção com borda colorida por status. -->
-          <div class="bg-[#1e293b] rounded-xl border border-slate-700 overflow-hidden flex"
+          <div class="bg-[#1e293b] rounded-xl border border-slate-700 flex"
                [class]="getBordaClass(item.proxima_em)">
 
             <!-- Coluna de data prevista. -->
-            <div class="flex flex-col items-center justify-center px-5 py-4 bg-[#0f172a] min-w-[90px] border-r border-slate-700">
+            <div class="flex flex-col items-center justify-center px-5 py-4 bg-[#0f172a] min-w-[90px] border-r border-slate-700 rounded-l-xl">
               <!-- Dia. -->
               <span class="text-2xl font-bold text-white leading-none">
                 {{ formatarData(item.proxima_em).split('/')[0] }}
               </span>
-              <!-- Mês. -->
+              <!-- Mês/Ano. -->
               <span class="text-xs text-slate-400 uppercase tracking-wider mt-0.5">
                 {{ formatarData(item.proxima_em).split('/')[1] }}/{{ formatarData(item.proxima_em).split('/')[2] }}
               </span>
             </div>
 
             <!-- Conteúdo principal do card. -->
-            <div class="flex-1 px-5 py-4 flex items-center justify-between gap-4">
+            <div class="flex-1 px-5 py-4 flex items-center justify-between gap-4 min-w-0">
 
               <!-- Informações do plano. -->
-              <div class="min-w-0">
+              <div class="min-w-0 flex-1">
                 <!-- Título do plano. -->
                 <p class="text-white font-medium truncate">{{ item.titulo }}</p>
                 <!-- Equipamento e localização. -->
@@ -145,18 +145,103 @@
                     <span class="text-slate-500 text-xs">{{ item.equipamento.localizacao }}</span>
                   }
                 </div>
-                <!-- Técnico responsável. -->
-                <p class="text-slate-500 text-xs mt-1">
-                  @if (item.tecnico) {
-                    <!-- Nome do técnico. -->
-                    Técnico: <span class="text-slate-400">{{ item.tecnico.nome }}</span>
+
+                <!-- Seção de técnico responsável / último executor. -->
+                <div class="mt-1.5 relative">
+
+                  @if (idEditandoTecnico() === item.id) {
+
+                    <!-- Campo de busca inline de técnico. -->
+                    <div class="flex items-center gap-2">
+                      <!-- Input de busca. -->
+                      <input
+                        type="text"
+                        [value]="buscaTexto()"
+                        (input)="onBuscaInput($any($event.target).value)"
+                        placeholder="Digite o nome do técnico..."
+                        class="flex-1 bg-[#0f172a] border border-blue-500/50 rounded px-2 py-1 text-xs text-white
+                               placeholder-slate-600 focus:outline-none focus:ring-1 focus:ring-blue-500/50" />
+                      <!-- Indicador de busca em andamento. -->
+                      @if (buscandoTecnico()) {
+                        <span class="text-slate-500 text-xs shrink-0">Buscando...</span>
+                      }
+                      <!-- Botão cancelar busca. -->
+                      <button
+                        (click)="cancelarBusca()"
+                        class="text-slate-500 hover:text-slate-300 text-xs shrink-0 transition-colors">
+                        ✕
+                      </button>
+                    </div>
+
+                    <!-- Dropdown de resultados da busca. -->
+                    @if (resultadosBusca().length > 0) {
+                      <div class="absolute top-full left-0 right-8 mt-1 bg-[#0f172a] border border-slate-600
+                                  rounded-lg shadow-xl z-20 max-h-40 overflow-y-auto">
+                        @for (tecnico of resultadosBusca(); track tecnico.id) {
+                          <!-- Opção de técnico. -->
+                          <button
+                            (click)="selecionarTecnico(item.id, tecnico)"
+                            class="w-full text-left px-3 py-2 text-xs text-slate-300 hover:bg-slate-700
+                                   transition-colors flex items-center gap-2">
+                            <!-- Nome do técnico. -->
+                            <span>{{ tecnico.nome }}</span>
+                            <!-- Perfil do técnico. -->
+                            @if (tecnico.perfil) {
+                              <span class="text-slate-500">({{ tecnico.perfil }})</span>
+                            }
+                          </button>
+                        }
+                      </div>
+                    }
+
+                  } @else if (item.ultimo_executor) {
+
+                    <!-- Último executor (quem realizou a manutenção). -->
+                    <p class="text-slate-500 text-xs flex items-center gap-1.5 flex-wrap">
+                      <!-- Ícone de check verde. -->
+                      <span class="text-green-400 font-bold">✓</span>
+                      Executado por:
+                      <!-- Nome do executor. -->
+                      <span class="text-green-300/80">{{ item.ultimo_executor.nome }}</span>
+                      <!-- Periodicidade. -->
+                      <span class="text-slate-600">· A cada {{ item.periodicidade_days }} dias</span>
+                    </p>
+
+                  } @else if (item.tecnico) {
+
+                    <!-- Técnico atribuído mas plano ainda não executado. -->
+                    <p class="text-slate-500 text-xs flex items-center gap-1.5 flex-wrap">
+                      Técnico:
+                      <!-- Nome do técnico. -->
+                      <span class="text-slate-400">{{ item.tecnico.nome }}</span>
+                      <!-- Botão para alterar o técnico. -->
+                      <button
+                        (click)="abrirBuscaTecnico(item.id)"
+                        class="text-slate-600 hover:text-blue-400 transition-colors underline underline-offset-2">
+                        alterar
+                      </button>
+                      <!-- Periodicidade. -->
+                      <span class="text-slate-600">· A cada {{ item.periodicidade_days }} dias</span>
+                    </p>
+
                   } @else {
+
                     <!-- Sem técnico definido. -->
-                    <span class="italic">Técnico não definido</span>
+                    <p class="text-slate-500 text-xs flex items-center gap-1.5 flex-wrap italic">
+                      Técnico não definido
+                      <!-- Botão para atribuir técnico. -->
+                      <button
+                        (click)="abrirBuscaTecnico(item.id)"
+                        class="not-italic text-slate-600 hover:text-blue-400 transition-colors underline underline-offset-2">
+                        atribuir
+                      </button>
+                      <!-- Periodicidade. -->
+                      <span class="not-italic text-slate-600">· A cada {{ item.periodicidade_days }} dias</span>
+                    </p>
+
                   }
-                  <!-- Periodicidade. -->
-                  · A cada {{ item.periodicidade_days }} dias
-                </p>
+
+                </div>
               </div>
 
               <!-- Lado direito: badge de status + botão de ação. -->

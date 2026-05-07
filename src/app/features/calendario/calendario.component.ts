@@ -1,5 +1,5 @@
-// Importa Component, OnInit, inject e signal.
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+// Importa Component, OnInit, inject, signal, computed e ChangeDetectorRef.
+import { Component, OnInit, inject, signal, computed, ChangeDetectorRef } from '@angular/core';
 // Importa FormsModule para ngModel nos filtros.
 import { FormsModule } from '@angular/forms';
 // Importa RouterLink para navegação.
@@ -9,7 +9,7 @@ import { CalendarioService } from '../../core/services/calendario.service';
 // Importa o serviço de equipamentos para popular o filtro.
 import { EquipamentoService } from '../../core/services/equipamento';
 // Importa os modelos.
-import { FiltroCalendario, ItemCalendario } from '../../core/models/calendario.model';
+import { FiltroCalendario, ItemCalendario, TecnicoBasico } from '../../core/models/calendario.model';
 import { Equipamento } from '../../core/models/equipamento.model';
 
 // Declara o componente do calendário de manutenções.
@@ -31,13 +31,27 @@ export class CalendarioComponent implements OnInit {
   private calendarioService = inject(CalendarioService);
   // Injeta o serviço de equipamentos.
   private equipamentoService = inject(EquipamentoService);
+  // Injeta o ChangeDetectorRef para forçar atualização de view no modo zoneless.
+  private cdr = inject(ChangeDetectorRef);
 
   // Lista de itens do calendário retornada pela API.
   itens = signal<ItemCalendario[]>([]);
   // Lista de equipamentos para o select de filtro.
   equipamentos = signal<Equipamento[]>([]);
-  // Flag de carregamento.
+  // Flag de carregamento geral.
   carregando = signal(true);
+
+  // ID do card com o campo de busca de técnico aberto (null = nenhum).
+  idEditandoTecnico = signal<string | null>(null);
+  // Texto atual digitado no campo de busca de técnico.
+  buscaTexto = signal('');
+  // Lista de técnicos retornados pela busca.
+  resultadosBusca = signal<TecnicoBasico[]>([]);
+  // Flag de carregamento da busca de técnicos.
+  buscandoTecnico = signal(false);
+
+  // Timer para debounce da busca de técnicos.
+  private debounceTimer: ReturnType<typeof setTimeout> | null = null;
 
   // Filtro de status selecionado pelo usuário.
   filtroStatus: FiltroCalendario = 'todas';
@@ -69,6 +83,8 @@ export class CalendarioComponent implements OnInit {
   buscar(): void {
     // Ativa o carregamento.
     this.carregando.set(true);
+    // Fecha qualquer busca de técnico aberta.
+    this.cancelarBusca();
     // Chama a API com os filtros atuais.
     this.calendarioService.listar(
       this.filtroStatus,
@@ -92,6 +108,67 @@ export class CalendarioComponent implements OnInit {
     this.filtroStatus = 'todas';
     this.filtroEquipamento = '';
     this.buscar();
+  }
+
+  // Abre o campo de busca de técnico para o card do plano informado.
+  abrirBuscaTecnico(planoId: string): void {
+    this.idEditandoTecnico.set(planoId);
+    this.buscaTexto.set('');
+    this.resultadosBusca.set([]);
+  }
+
+  // Fecha o campo de busca e limpa os resultados.
+  cancelarBusca(): void {
+    this.idEditandoTecnico.set(null);
+    this.buscaTexto.set('');
+    this.resultadosBusca.set([]);
+    // Cancela debounce pendente.
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+  }
+
+  // Dispara a busca de técnicos com debounce ao digitar.
+  onBuscaInput(valor: string): void {
+    // Atualiza o texto da busca.
+    this.buscaTexto.set(valor);
+    // Cancela debounce anterior.
+    if (this.debounceTimer) clearTimeout(this.debounceTimer);
+    // Limpa resultados se o campo estiver vazio.
+    if (!valor.trim()) {
+      this.resultadosBusca.set([]);
+      return;
+    }
+    // Aguarda 300ms antes de disparar a requisição.
+    this.debounceTimer = setTimeout(() => {
+      this.buscandoTecnico.set(true);
+      this.calendarioService.buscarTecnicos(valor).subscribe({
+        next: (tecnicos) => {
+          this.resultadosBusca.set(tecnicos);
+          this.buscandoTecnico.set(false);
+          this.cdr.detectChanges();
+        },
+        error: () => {
+          this.buscandoTecnico.set(false);
+          this.cdr.detectChanges();
+        },
+      });
+    }, 300);
+  }
+
+  // Atribui o técnico selecionado ao plano e atualiza a lista local.
+  selecionarTecnico(planoId: string, tecnico: TecnicoBasico): void {
+    this.calendarioService.atribuirTecnico(planoId, tecnico.id).subscribe({
+      next: () => {
+        // Atualiza apenas o item afetado no signal, sem recarregar a lista.
+        this.itens.update(lista =>
+          lista.map(item =>
+            item.id === planoId ? { ...item, tecnico } : item
+          )
+        );
+        // Fecha o campo de busca.
+        this.cancelarBusca();
+        this.cdr.detectChanges();
+      },
+    });
   }
 
   // Formata uma data ISO para o padrão brasileiro DD/MM/AAAA.
