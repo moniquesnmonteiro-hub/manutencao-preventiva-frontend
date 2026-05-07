@@ -1,0 +1,187 @@
+<!-- Container principal com fundo escuro. -->
+<div class="min-h-screen bg-[#0f172a] p-8">
+  <!-- Área centralizada com largura máxima. -->
+  <div class="max-w-5xl mx-auto">
+
+    <!-- Cabeçalho da página. -->
+    <div class="flex justify-between items-start mb-8">
+      <div>
+        <!-- Título da página. -->
+        <h2 class="text-2xl font-light text-white tracking-tight">Calendário de Manutenções</h2>
+        <!-- Subtítulo com contagem dinâmica. -->
+        <p class="text-slate-400 text-sm mt-1">
+          {{ total() }} manutenção(ões) · ordenadas por data prevista
+        </p>
+      </div>
+    </div>
+
+    <!-- Painel de filtros. -->
+    <div class="bg-[#1e293b] rounded-xl border border-slate-700 p-4 mb-6 flex flex-wrap gap-4 items-end">
+
+      <!-- Filtro de status. -->
+      <div class="flex-1 min-w-[180px]">
+        <!-- Label do filtro. -->
+        <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+          Status
+        </label>
+        <!-- Select de status com ngModel. -->
+        <select
+          name="filtroStatus"
+          [(ngModel)]="filtroStatus"
+          class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm
+                 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+          <!-- Loop pelas opções de filtro. -->
+          @for (opcao of filtrosStatus; track opcao.value) {
+            <option [value]="opcao.value">{{ opcao.label }}</option>
+          }
+        </select>
+      </div>
+
+      <!-- Filtro por equipamento. -->
+      <div class="flex-1 min-w-[200px]">
+        <!-- Label do filtro. -->
+        <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+          Equipamento
+        </label>
+        <!-- Select de equipamento com ngModel. -->
+        <select
+          name="filtroEquipamento"
+          [(ngModel)]="filtroEquipamento"
+          class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2 text-white text-sm
+                 focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+          <!-- Opção padrão para todos. -->
+          <option value="">Todos os equipamentos</option>
+          <!-- Loop pelos equipamentos. -->
+          @for (eq of equipamentos(); track eq.id) {
+            <option [value]="eq.id">{{ eq.nome }} ({{ eq.codigo }})</option>
+          }
+        </select>
+      </div>
+
+      <!-- Botões de ação dos filtros. -->
+      <div class="flex gap-2">
+        <!-- Botão aplicar filtros. -->
+        <button
+          (click)="buscar()"
+          class="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg text-sm font-medium transition-all">
+          Filtrar
+        </button>
+        <!-- Botão limpar filtros. -->
+        <button
+          (click)="limparFiltros()"
+          class="text-slate-400 hover:text-white px-4 py-2 rounded-lg text-sm transition-all border border-slate-700 hover:border-slate-500">
+          Limpar
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Estado de carregamento. -->
+    @if (carregando()) {
+      <div class="flex items-center justify-center py-20 text-slate-500 gap-3">
+        <!-- Spinner de carregamento. -->
+        <svg class="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path>
+        </svg>
+        Carregando manutenções...
+      </div>
+    } @else if (itens().length === 0) {
+
+      <!-- Estado vazio. -->
+      <div class="bg-[#1e293b] rounded-xl border border-slate-700 p-16 text-center">
+        <!-- Ícone de estado vazio. -->
+        <svg class="w-12 h-12 text-slate-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+            d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+        </svg>
+        <!-- Mensagem de estado vazio. -->
+        <p class="text-slate-500 italic">Nenhuma manutenção encontrada para os filtros selecionados.</p>
+        <!-- Botão para limpar filtros. -->
+        <button (click)="limparFiltros()" class="mt-3 text-blue-400 hover:text-blue-300 text-sm transition-colors">
+          Ver todas as manutenções
+        </button>
+      </div>
+
+    } @else {
+
+      <!-- Lista de itens do calendário. -->
+      <div class="space-y-3">
+        <!-- Loop pelos itens do calendário. -->
+        @for (item of itens(); track item.id) {
+          <!-- Card de cada manutenção com borda colorida por status. -->
+          <div class="bg-[#1e293b] rounded-xl border border-slate-700 overflow-hidden flex"
+               [class]="getBordaClass(item.proxima_em)">
+
+            <!-- Coluna de data prevista. -->
+            <div class="flex flex-col items-center justify-center px-5 py-4 bg-[#0f172a] min-w-[90px] border-r border-slate-700">
+              <!-- Dia. -->
+              <span class="text-2xl font-bold text-white leading-none">
+                {{ formatarData(item.proxima_em).split('/')[0] }}
+              </span>
+              <!-- Mês. -->
+              <span class="text-xs text-slate-400 uppercase tracking-wider mt-0.5">
+                {{ formatarData(item.proxima_em).split('/')[1] }}/{{ formatarData(item.proxima_em).split('/')[2] }}
+              </span>
+            </div>
+
+            <!-- Conteúdo principal do card. -->
+            <div class="flex-1 px-5 py-4 flex items-center justify-between gap-4">
+
+              <!-- Informações do plano. -->
+              <div class="min-w-0">
+                <!-- Título do plano. -->
+                <p class="text-white font-medium truncate">{{ item.titulo }}</p>
+                <!-- Equipamento e localização. -->
+                <div class="flex items-center gap-2 mt-1 flex-wrap">
+                  @if (item.equipamento) {
+                    <!-- Badge do código do equipamento. -->
+                    <span class="font-mono text-blue-400 text-xs">{{ item.equipamento.codigo }}</span>
+                    <!-- Nome do equipamento. -->
+                    <span class="text-slate-400 text-xs">{{ item.equipamento.nome }}</span>
+                    <!-- Separador. -->
+                    <span class="text-slate-600 text-xs">·</span>
+                    <!-- Localização. -->
+                    <span class="text-slate-500 text-xs">{{ item.equipamento.localizacao }}</span>
+                  }
+                </div>
+                <!-- Técnico responsável. -->
+                <p class="text-slate-500 text-xs mt-1">
+                  @if (item.tecnico) {
+                    <!-- Nome do técnico. -->
+                    Técnico: <span class="text-slate-400">{{ item.tecnico.nome }}</span>
+                  } @else {
+                    <!-- Sem técnico definido. -->
+                    <span class="italic">Técnico não definido</span>
+                  }
+                  <!-- Periodicidade. -->
+                  · A cada {{ item.periodicidade_days }} dias
+                </p>
+              </div>
+
+              <!-- Lado direito: badge de status + botão de ação. -->
+              <div class="flex items-center gap-3 shrink-0">
+                <!-- Badge de status de prazo. -->
+                <span class="text-xs font-semibold px-3 py-1 rounded-full"
+                  [class]="getStatusClass(item.proxima_em)">
+                  {{ getStatusLabel(item.proxima_em) }}
+                </span>
+                <!-- Botão de registrar execução. -->
+                <a
+                  [routerLink]="['/app/execucoes/nova']"
+                  [queryParams]="{ plano_id: item.id }"
+                  class="bg-slate-700 hover:bg-blue-600 text-slate-300 hover:text-white
+                         px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap">
+                  Registrar
+                </a>
+              </div>
+
+            </div>
+          </div>
+        }
+      </div>
+
+    }
+
+  </div>
+</div>

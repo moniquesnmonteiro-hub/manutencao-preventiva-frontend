@@ -27,6 +27,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'app/calendario',
+    loadComponent: () =>
+      import('./features/calendario/calendario.component').then(
+        m => m.CalendarioComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'app/execucoes/nova',
     loadComponent: () =>
       import('./features/execucoes/execucao-form/execucao-form.component').then(
