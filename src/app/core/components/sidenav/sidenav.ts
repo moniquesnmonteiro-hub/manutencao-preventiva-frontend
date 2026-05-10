@@ -47,6 +47,12 @@ export class Sidenav {
   }
 
   // Retorna o label do perfil do usuário logado.
+  // Retorna true se o usuário logado for Gestor (aceita valor numérico ou string).
+  get isGestor(): boolean {
+    const p = this.currentUser?.perfil;
+    return p === 'GESTOR' || (p as any) === 2;
+  }
+
   get perfilLabel(): string {
     const labels: Record<string | number, string> = {
       0: 'Técnico', TECNICO: 'Técnico',

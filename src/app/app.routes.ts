@@ -43,6 +43,14 @@ export const routes: Routes = [
     canActivate: [authGuard],
   },
   {
+    path: 'app/usuarios/novo',
+    loadComponent: () =>
+      import('./features/usuarios/usuario-novo/usuario-novo.component').then(
+        m => m.UsuarioNovoComponent
+      ),
+    canActivate: [authGuard],
+  },
+  {
     path: 'app/dashboard',
     loadComponent: () =>
       import('./features/dashboard/dashboard.component').then(
