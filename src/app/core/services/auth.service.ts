@@ -70,6 +70,18 @@ export class AuthService {
     this.currentUserSubject.next(null);
   }
 
+  // Atualiza nome e/ou senha do usuário logado e sincroniza o estado local.
+  updateMe(data: { nome: string; senha_atual?: string; nova_senha?: string }): Observable<any> {
+    return this.http.patch(`http://localhost:3000/api/usuarios/me`, data).pipe(
+      tap((usuario: any) => {
+        // Atualiza o nome no estado local sem exigir novo login.
+        const atualizado = { ...this.currentUser!, nome: usuario.nome };
+        localStorage.setItem(this.USER_KEY, JSON.stringify(atualizado));
+        this.currentUserSubject.next(atualizado);
+      })
+    );
+  }
+
   private loadUser(): UsuarioLogado | null {
     const raw = localStorage.getItem(this.USER_KEY);
     return raw ? JSON.parse(raw) : null;

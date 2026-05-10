@@ -44,10 +44,24 @@
     <!-- Usuário + Logout -->
     <div class="border-t border-slate-700 pt-4 mt-4">
       @if (currentUser) {
-        <div class="mb-3 px-1">
-          <p class="text-sm font-medium text-white truncate">{{ currentUser.nome }}</p>
-          <p class="text-xs text-slate-500 truncate">{{ perfilLabel }}</p>
-        </div>
+        <!-- Área clicável para editar perfil. -->
+        <button
+          (click)="abrirModal()"
+          class="w-full text-left mb-3 px-2 py-2 rounded-lg hover:bg-slate-700/50 transition-colors group">
+          <!-- Nome do usuário. -->
+          <p class="text-sm font-medium text-white truncate group-hover:text-blue-400 transition-colors">
+            {{ currentUser.nome }}
+          </p>
+          <!-- Perfil + hint de edição. -->
+          <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
+            <span>{{ perfilLabel }}</span>
+            <!-- Ícone de lápis visível no hover. -->
+            <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
+            </svg>
+          </p>
+        </button>
       }
       <button
         (click)="logout()"
@@ -65,3 +79,148 @@
     <router-outlet></router-outlet>
   </main>
 </div>
+
+<!-- Modal de edição de perfil. -->
+@if (modalAberto()) {
+  <!-- Overlay. -->
+  <div
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
+    (click)="fecharModal()">
+
+    <!-- Painel do modal (para propagação do clique). -->
+    <div
+      class="bg-[#1e293b] rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl"
+      (click)="$event.stopPropagation()">
+
+      <!-- Cabeçalho do modal. -->
+      <div class="flex items-center justify-between px-6 py-5 border-b border-slate-700">
+        <h3 class="text-white font-medium">Editar Perfil</h3>
+        <!-- Botão fechar. -->
+        <button
+          (click)="fecharModal()"
+          class="text-slate-500 hover:text-white transition-colors">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Corpo do modal. -->
+      <div class="px-6 py-5 space-y-4">
+
+        <!-- Campo de nome. -->
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+            Nome
+          </label>
+          <input
+            type="text"
+            [value]="nomeForm()"
+            (input)="nomeForm.set($any($event.target).value)"
+            placeholder="Seu nome completo"
+            class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm
+                   focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
+                   placeholder-slate-600" />
+        </div>
+
+        <!-- Toggle de alterar senha. -->
+        <button
+          type="button"
+          (click)="alterarSenha.set(!alterarSenha())"
+          class="text-xs text-slate-500 hover:text-blue-400 transition-colors underline underline-offset-2">
+          {{ alterarSenha() ? 'Cancelar alteração de senha' : 'Alterar senha' }}
+        </button>
+
+        <!-- Seção de senha (visível apenas se toggle ativo). -->
+        @if (alterarSenha()) {
+          <div class="space-y-3 pt-1">
+
+            <!-- Senha atual. -->
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+                Senha atual
+              </label>
+              <input
+                type="password"
+                [value]="senhaAtual()"
+                (input)="senhaAtual.set($any($event.target).value)"
+                placeholder="••••••••"
+                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
+                       placeholder-slate-600" />
+            </div>
+
+            <!-- Nova senha. -->
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+                Nova senha
+              </label>
+              <input
+                type="password"
+                [value]="novaSenha()"
+                (input)="novaSenha.set($any($event.target).value)"
+                placeholder="Mínimo 6 caracteres"
+                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
+                       placeholder-slate-600" />
+            </div>
+
+            <!-- Confirmar nova senha. -->
+            <div>
+              <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
+                Confirmar nova senha
+              </label>
+              <input
+                type="password"
+                [value]="confirmarSenha()"
+                (input)="confirmarSenha.set($any($event.target).value)"
+                placeholder="••••••••"
+                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-3 py-2.5 text-white text-sm
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
+                       placeholder-slate-600" />
+            </div>
+
+          </div>
+        }
+
+        <!-- Mensagem de erro. -->
+        @if (erroModal()) {
+          <p class="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
+            {{ erroModal() }}
+          </p>
+        }
+
+        <!-- Mensagem de sucesso. -->
+        @if (sucesso()) {
+          <p class="text-green-400 text-xs bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
+            Perfil atualizado com sucesso!
+          </p>
+        }
+
+      </div>
+
+      <!-- Rodapé do modal com botões. -->
+      <div class="flex gap-3 px-6 py-4 border-t border-slate-700">
+        <!-- Botão cancelar. -->
+        <button
+          type="button"
+          (click)="fecharModal()"
+          [disabled]="salvando()"
+          class="flex-1 px-4 py-2.5 rounded-lg text-sm text-slate-400 border border-slate-700
+                 hover:border-slate-500 hover:text-white transition-all disabled:opacity-50">
+          Cancelar
+        </button>
+        <!-- Botão salvar. -->
+        <button
+          type="button"
+          (click)="salvar()"
+          [disabled]="salvando()"
+          class="flex-1 bg-blue-600 hover:bg-blue-500 text-white px-4 py-2.5 rounded-lg text-sm
+                 font-medium transition-all disabled:opacity-50 disabled:cursor-not-allowed">
+          {{ salvando() ? 'Salvando...' : 'Salvar' }}
+        </button>
+      </div>
+
+    </div>
+  </div>
+}

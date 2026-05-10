@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { AuthService } from '../../../core/services/auth.service';
 export class LoginComponent {
   private authService = inject(AuthService);
   private router = inject(Router);
+  private cdr = inject(ChangeDetectorRef);
 
   email = '';
   password = '';
@@ -27,10 +28,20 @@ export class LoginComponent {
     this.errorMsg = '';
 
     this.authService.login({ email: this.email, password: this.password }).subscribe({
-      next: () => this.router.navigate(['/app/equipamentos']),
+      next: () => this.router.navigate(['/app/dashboard']),
       error: (err) => {
-        this.errorMsg = err.error?.message ?? 'Erro ao conectar com o servidor';
+        // Mapeia o status HTTP para uma mensagem amigável.
+        const status = err?.status;
+        if (status === 0) {
+          this.errorMsg = 'Não foi possível conectar ao servidor.';
+        } else if (status === 400 || status === 401) {
+          this.errorMsg = 'E-mail ou senha incorretos.';
+        } else {
+          this.errorMsg = err.error?.message ?? 'Erro inesperado. Tente novamente.';
+        }
         this.isLoading = false;
+        // Força atualização da view no modo zoneless.
+        this.cdr.detectChanges();
       },
     });
   }
