@@ -22,4 +22,5 @@ export interface CreatePlanoDTO {
   descricao: string;
   periodicidade: number;
   data_inicio: string;
+  tecnico_id?: number | null;
 }

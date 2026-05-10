@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { PlanoService } from '../../../core/services/plano.service';
 import { EquipamentoService } from '../../../core/services/equipamento';
+import { UsuarioService } from '../../../core/services/usuario.service';
 import { PlanoResumo, CreatePlanoDTO } from '../../../core/models/plano.model';
 import { Equipamento } from '../../../core/models/equipamento.model';
 
@@ -18,7 +19,7 @@ import { Equipamento } from '../../../core/models/equipamento.model';
         <div class="flex justify-between items-center mb-8">
           <div>
             <h2 class="text-2xl font-light text-white tracking-tight">Planos de Manutenção</h2>
-            <p class="text-slate-400 text-sm">{{ planos.length }} plano(s) cadastrado(s) · Clique em um para ver o histórico</p>
+            <p class="text-slate-400 text-sm">{{ planos.length }} plano(s) ativo(s) · Clique em um para ver o histórico</p>
           </div>
           <button
             (click)="abrirModal()"
@@ -81,7 +82,7 @@ import { Equipamento } from '../../../core/models/equipamento.model';
     @if (exibirModal) {
       <div class="fixed inset-0 z-50 flex items-center justify-center p-4">
         <div class="absolute inset-0 bg-black/70 backdrop-blur-sm" (click)="fecharModal()"></div>
-        <div class="relative bg-[#1e293b] w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl p-8">
+        <div class="relative bg-[#1e293b] w-full max-w-lg rounded-2xl border border-slate-700 shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
 
           <div class="flex justify-between items-center mb-6">
             <h3 class="text-xl font-semibold text-white">Novo Plano de Manutenção</h3>
@@ -155,6 +156,20 @@ import { Equipamento } from '../../../core/models/equipamento.model';
               </div>
             </div>
 
+            <!-- Técnico responsável padrão (opcional) -->
+            <div>
+              <label class="block text-sm font-medium text-slate-400 mb-1.5">Técnico responsável padrão</label>
+              <select
+                (change)="onTecnicoChange($event)"
+                class="w-full bg-[#0f172a] border border-slate-700 rounded-lg px-4 py-2.5 text-white
+                       focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all">
+                <option value="">Nenhum (definir depois)</option>
+                @for (tec of tecnicos; track tec.id) {
+                  <option [value]="tec.id">{{ tec.nome }} — {{ perfilLabel(tec.perfil) }}</option>
+                }
+              </select>
+            </div>
+
             <div class="flex justify-end gap-3 pt-2 border-t border-slate-700">
               <button type="button" (click)="fecharModal()"
                 class="px-4 py-2 text-slate-400 hover:text-white transition-colors">
@@ -185,14 +200,17 @@ import { Equipamento } from '../../../core/models/equipamento.model';
 export class PlanoListComponent implements OnInit {
   planos: PlanoResumo[] = [];
   equipamentos: Equipamento[] = [];
+  tecnicos: any[] = [];
   exibirModal = false;
   isSaving = false;
   errorMsg = '';
   selectedEquipamentoId = '';
+  selectedTecnicoId: number | null = null;
   form: FormGroup;
 
   private planoService = inject(PlanoService);
   private equipamentoService = inject(EquipamentoService);
+  private usuarioService = inject(UsuarioService);
   private router = inject(Router);
   private fb = inject(FormBuilder);
   private cdr = inject(ChangeDetectorRef);
@@ -212,7 +230,7 @@ export class PlanoListComponent implements OnInit {
 
   carregarPlanos(): void {
     this.planoService.listarTodos().subscribe({
-      next: (planos) => this.planos = planos,
+      next: (planos) => { this.planos = planos; this.cdr.detectChanges(); },
       error: (err) => console.error('Erro ao buscar planos:', err),
     });
   }
@@ -220,6 +238,12 @@ export class PlanoListComponent implements OnInit {
   carregarEquipamentos(): void {
     this.equipamentoService.listar().subscribe({
       next: (equipamentos) => this.equipamentos = equipamentos,
+    });
+  }
+
+  carregarTecnicos(): void {
+    this.usuarioService.listarTodos().subscribe({
+      next: (usuarios) => { this.tecnicos = usuarios; this.cdr.detectChanges(); },
     });
   }
 
@@ -231,11 +255,27 @@ export class PlanoListComponent implements OnInit {
     this.selectedEquipamentoId = (event.target as HTMLSelectElement).value;
   }
 
+  onTecnicoChange(event: Event): void {
+    const val = (event.target as HTMLSelectElement).value;
+    this.selectedTecnicoId = val ? Number(val) : null;
+  }
+
+  perfilLabel(perfil: any): string {
+    const labels: Record<string | number, string> = {
+      0: 'Técnico', TECNICO: 'Técnico',
+      1: 'Supervisor', SUPERVISOR: 'Supervisor',
+      2: 'Gestor', GESTOR: 'Gestor',
+    };
+    return labels[perfil] ?? String(perfil);
+  }
+
   abrirModal(): void {
     this.selectedEquipamentoId = '';
+    this.selectedTecnicoId = null;
     this.form.reset({ periodicidade: 30 });
     this.errorMsg = '';
     this.exibirModal = true;
+    this.carregarTecnicos();
   }
 
   fecharModal(): void {
@@ -258,6 +298,7 @@ export class PlanoListComponent implements OnInit {
       descricao: v.descricao,
       periodicidade: Number(v.periodicidade),
       data_inicio: v.data_inicio + 'T00:00:00.000Z',
+      tecnico_id: this.selectedTecnicoId,
     };
 
     this.planoService.criar(data).subscribe({

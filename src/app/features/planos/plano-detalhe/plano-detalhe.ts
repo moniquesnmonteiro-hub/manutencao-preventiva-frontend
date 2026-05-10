@@ -93,6 +93,7 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
                   <thead>
                     <tr class="bg-[#0f172a] border-b border-slate-700">
                       <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Data</th>
+                      <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Técnico</th>
                       <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Status</th>
                       <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Conformidade</th>
                       <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Observações</th>
@@ -102,6 +103,7 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
                     @for (exec of execucoes; track exec.id) {
                       <tr class="hover:bg-[#2d3a4f] transition-colors">
                         <td class="p-4 text-slate-300 font-medium">{{ formatarData(exec.data_execucao) }}</td>
+                        <td class="p-4 text-slate-400 text-sm">{{ exec.tecnico?.nome ?? '—' }}</td>
                         <td class="p-4">
                           <span class="text-xs font-semibold px-2.5 py-1 rounded-full"
                             [class]="getStatusExecucaoClass(exec.status)">

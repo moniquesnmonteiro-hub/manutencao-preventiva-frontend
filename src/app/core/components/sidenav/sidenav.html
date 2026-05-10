@@ -7,7 +7,6 @@
 <div class="flex min-h-screen">
   <aside [class.hidden]="!isMenuOpen" class="w-64 min-h-screen bg-[#1e293b] border-r border-slate-700 p-6 flex flex-col lg:flex">
 
-    <!-- Logo -->
     <div class="flex items-center space-x-2 mb-10">
       <div class="w-8 h-8 bg-blue-600 rounded-lg flex items-center justify-center">
         <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -17,7 +16,6 @@
       <h1 class="text-white font-bold text-xl tracking-tight">PreventivaPIM</h1>
     </div>
 
-    <!-- Navegação -->
     <nav class="flex flex-col space-y-2 flex-1">
       <a routerLink="/app/dashboard" routerLinkActive="bg-blue-600/20 text-blue-400"
          class="flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:bg-slate-800 transition-all">
@@ -39,7 +37,6 @@
          class="flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:bg-slate-800 transition-all">
         <span>Registrar Execução</span>
       </a>
-      <!-- Link visível apenas para o perfil Gestor. -->
       @if (isGestor) {
         <a routerLink="/app/usuarios/novo" routerLinkActive="bg-blue-600/20 text-blue-400"
            class="flex items-center space-x-3 p-3 rounded-lg text-slate-400 hover:bg-slate-800 transition-all">
@@ -48,21 +45,16 @@
       }
     </nav>
 
-    <!-- Usuário + Logout -->
     <div class="border-t border-slate-700 pt-4 mt-4">
       @if (currentUser) {
-        <!-- Área clicável para editar perfil. -->
         <button
           (click)="abrirModal()"
           class="w-full text-left mb-3 px-2 py-2 rounded-lg hover:bg-slate-700/50 transition-colors group">
-          <!-- Nome do usuário. -->
           <p class="text-sm font-medium text-white truncate group-hover:text-blue-400 transition-colors">
             {{ currentUser.nome }}
           </p>
-          <!-- Perfil + hint de edição. -->
           <p class="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
             <span>{{ perfilLabel }}</span>
-            <!-- Ícone de lápis visível no hover. -->
             <svg class="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                 d="M15.232 5.232l3.536 3.536M9 11l6-6 3 3-6 6H9v-3z"/>
@@ -82,27 +74,27 @@
     </div>
   </aside>
 
-  <main class="flex-1">
-    <router-outlet></router-outlet>
+  <main class="flex-1 flex flex-col">
+    <div class="flex-1">
+      <router-outlet></router-outlet>
+    </div>
+    <footer class="bg-[#0f172a] border-t border-slate-800 px-8 py-3 text-center text-xs text-slate-600">
+      PreventivaPIM · Polo Industrial de Manaus · 2026
+    </footer>
   </main>
 </div>
 
-<!-- Modal de edição de perfil. -->
 @if (modalAberto()) {
-  <!-- Overlay. -->
   <div
     class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4"
     (click)="fecharModal()">
 
-    <!-- Painel do modal (para propagação do clique). -->
     <div
       class="bg-[#1e293b] rounded-2xl border border-slate-700 w-full max-w-md shadow-2xl"
       (click)="$event.stopPropagation()">
 
-      <!-- Cabeçalho do modal. -->
       <div class="flex items-center justify-between px-6 py-5 border-b border-slate-700">
         <h3 class="text-white font-medium">Editar Perfil</h3>
-        <!-- Botão fechar. -->
         <button
           (click)="fecharModal()"
           class="text-slate-500 hover:text-white transition-colors">
@@ -112,10 +104,8 @@
         </button>
       </div>
 
-      <!-- Corpo do modal. -->
       <div class="px-6 py-5 space-y-4">
 
-        <!-- Campo de nome. -->
         <div>
           <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
             Nome
@@ -130,7 +120,6 @@
                    placeholder-slate-600" />
         </div>
 
-        <!-- Toggle de alterar senha. -->
         <button
           type="button"
           (click)="alterarSenha.set(!alterarSenha())"
@@ -138,11 +127,8 @@
           {{ alterarSenha() ? 'Cancelar alteração de senha' : 'Alterar senha' }}
         </button>
 
-        <!-- Seção de senha (visível apenas se toggle ativo). -->
         @if (alterarSenha()) {
           <div class="space-y-3 pt-1">
-
-            <!-- Senha atual. -->
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
                 Senha atual
@@ -157,7 +143,6 @@
                        placeholder-slate-600" />
             </div>
 
-            <!-- Nova senha. -->
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
                 Nova senha
@@ -172,7 +157,6 @@
                        placeholder-slate-600" />
             </div>
 
-            <!-- Confirmar nova senha. -->
             <div>
               <label class="block text-xs font-medium text-slate-400 mb-1.5 uppercase tracking-wider">
                 Confirmar nova senha
@@ -186,18 +170,15 @@
                        focus:outline-none focus:ring-2 focus:ring-blue-500/50 transition-all
                        placeholder-slate-600" />
             </div>
-
           </div>
         }
 
-        <!-- Mensagem de erro. -->
         @if (erroModal()) {
           <p class="text-red-400 text-xs bg-red-500/10 border border-red-500/20 rounded-lg px-3 py-2">
             {{ erroModal() }}
           </p>
         }
 
-        <!-- Mensagem de sucesso. -->
         @if (sucesso()) {
           <p class="text-green-400 text-xs bg-green-500/10 border border-green-500/20 rounded-lg px-3 py-2">
             Perfil atualizado com sucesso!
@@ -206,9 +187,7 @@
 
       </div>
 
-      <!-- Rodapé do modal com botões. -->
       <div class="flex gap-3 px-6 py-4 border-t border-slate-700">
-        <!-- Botão cancelar. -->
         <button
           type="button"
           (click)="fecharModal()"
@@ -217,7 +196,6 @@
                  hover:border-slate-500 hover:text-white transition-all disabled:opacity-50">
           Cancelar
         </button>
-        <!-- Botão salvar. -->
         <button
           type="button"
           (click)="salvar()"
