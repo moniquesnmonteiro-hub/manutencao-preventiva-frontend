@@ -42,6 +42,14 @@ export const routes: Routes = [
       ),
     canActivate: [authGuard],
   },
-  { path: '', redirectTo: 'app/equipamentos', pathMatch: 'full' },
-  { path: '**', redirectTo: 'app/equipamentos' },
+  {
+    path: 'app/dashboard',
+    loadComponent: () =>
+      import('./features/dashboard/dashboard.component').then(
+        m => m.DashboardComponent
+      ),
+    canActivate: [authGuard],
+  },
+  { path: '', redirectTo: 'app/dashboard', pathMatch: 'full' },
+  { path: '**', redirectTo: 'app/dashboard' },
 ];
