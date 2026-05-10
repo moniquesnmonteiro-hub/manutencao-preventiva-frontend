@@ -11,7 +11,7 @@ import { EquipamentoFormComponent } from '../equipamento-form/equipamento-form';
   standalone: true,
   imports: [CommonModule, EquipamentoFormComponent],
   template: `
-    <div class="min-h-screen bg-[#0f172a] p-8">
+    <div class="min-h-screen bg-[#0f172a] p-4 sm:p-8">
       <div class="max-w-6xl mx-auto">
 
         <div class="flex justify-between items-center mb-8">
@@ -27,7 +27,8 @@ import { EquipamentoFormComponent } from '../equipamento-form/equipamento-form';
         </div>
 
         <div class="bg-[#1e293b] rounded-xl shadow-2xl border border-slate-700 overflow-hidden">
-          <table class="w-full text-left border-collapse">
+          <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse min-w-[600px]">
             <thead>
               <tr class="bg-[#0f172a] border-b border-slate-700">
                 <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Código</th>
@@ -66,6 +67,7 @@ import { EquipamentoFormComponent } from '../equipamento-form/equipamento-form';
               }
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>

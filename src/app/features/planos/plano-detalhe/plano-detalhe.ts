@@ -12,7 +12,7 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="min-h-screen bg-[#0f172a] p-8">
+    <div class="min-h-screen bg-[#0f172a] p-4 sm:p-8">
       <div class="max-w-4xl mx-auto">
 
         <!-- Voltar -->
@@ -85,11 +85,13 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
 
             <div class="bg-[#1e293b] rounded-xl border border-slate-700 overflow-hidden">
               @if (execucoes.length === 0) {
+
                 <div class="p-12 text-center">
                   <p class="text-slate-500 italic">Nenhuma execução registrada para este plano.</p>
                 </div>
               } @else {
-                <table class="w-full text-left border-collapse">
+                <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse min-w-[640px]">
                   <thead>
                     <tr class="bg-[#0f172a] border-b border-slate-700">
                       <th class="p-4 text-xs font-medium text-slate-400 uppercase tracking-wider">Data</th>
@@ -124,6 +126,7 @@ import { ExecucaoResumo } from '../../../core/models/execucao.model';
                     }
                   </tbody>
                 </table>
+                </div>
               }
             </div>
           </div>
